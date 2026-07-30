@@ -117,6 +117,17 @@
     .likes .muted { color: #2f4555; }
     .likes .accent { color: #2a4d66; }
 
+    /* —— Kuweta: piaskowy —— */
+    .litter {
+      background: #e8e0d2;
+      color: #241c12;
+      border-left: 4px solid #8a6a3d;
+    }
+
+    .litter h2 { color: #6b4f28; border-color: rgba(107, 79, 40, 0.28); }
+    .litter .muted { color: #4a3b28; }
+    .litter .steps li::before { color: #6b4f28; }
+
     .rules {
       display: grid;
       gap: 0.15rem;
@@ -240,6 +251,16 @@
       <ol class="steps">
         <li class="muted" data-n="1">W dzień: 15&nbsp;g (zwykle 11:30)</li>
         <li class="muted" data-n="2">Wieczorem o 21:00: ustaw 8&nbsp;g i <b class="accent">7&nbsp;godzin</b> — obróci się o 4:00</li>
+      </ol>
+    </section>
+
+    <section class="block litter" aria-labelledby="litter-title">
+      <h2 id="litter-title">Sprzątanie kuwety</h2>
+      <ol class="steps">
+        <li class="muted" data-n="1">Weź łopatkę za kuwetą</li>
+        <li class="muted" data-n="2">Weź zielony worek śniadaniowy z szafeczki po prawej od zmywarki</li>
+        <li class="muted" data-n="3">Zapakuj nieczystości do worka łopatką</li>
+        <li class="muted" data-n="4">Zawiń worek i wyrzuć do kosza po prawej od kibla</li>
       </ol>
     </section>
 
