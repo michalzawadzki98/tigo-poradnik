@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tigo — poradnik opieki</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #142019;
+      --bg: #e4e8e2;
+      --max: 34rem;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Outfit", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.4;
+      font-size: 1.02rem;
+    }
+
+    .wrap {
+      width: min(100% - 1.5rem, var(--max));
+      margin: 0 auto;
+      padding: 1.35rem 0 2.25rem;
+    }
+
+    header {
+      margin-bottom: 1rem;
+      padding: 0 0.15rem 0.75rem;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    header h1 {
+      font-family: "Fraunces", serif;
+      font-size: 2.4rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    header p {
+      margin-top: 0.2rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      opacity: 0.7;
+    }
+
+    .block {
+      margin-top: 0.85rem;
+      padding: 1rem 1rem 1.05rem;
+      border-radius: 0.35rem;
+    }
+
+    .block h2 {
+      font-family: "Fraunces", serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid currentColor;
+      opacity: 0.95;
+    }
+
+    .block h3 {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 0.85rem 0 0.4rem;
+      opacity: 0.75;
+    }
+
+    .block h3:first-of-type {
+      margin-top: 0;
+    }
+
+    /* —— Karmienie: zieleń —— */
+    .feed {
+      background: #d7e4d4;
+      color: #132418;
+      border-left: 4px solid #3d6b45;
+    }
+
+    .feed h2 { color: #2a5232; border-color: rgba(42, 82, 50, 0.25); }
+    .feed h3 { color: #2a5232; }
+    .feed .muted { color: #2d4534; }
+    .feed .accent { color: #1f4a28; }
+    .feed .warn { color: #7a4e12; font-weight: 600; margin-top: 0.55rem; }
+    .feed .line { border-color: rgba(42, 82, 50, 0.22); }
+
+    /* —— Bezpieczeństwo: czerwień/amber —— */
+    .safe {
+      background: #f3ddd2;
+      color: #2a1510;
+      border-left: 4px solid #b4452a;
+    }
+
+    .safe h2 { color: #8f321c; border-color: rgba(143, 50, 28, 0.28); }
+    .safe .muted { color: #5a3228; }
+    .safe .accent { color: #8f321c; }
+
+    /* —— Co lubi: niebieskawy —— */
+    .likes {
+      background: #d5e0ea;
+      color: #13202a;
+      border-left: 4px solid #3a5f7a;
+    }
+
+    .likes h2 { color: #2a4d66; border-color: rgba(42, 77, 102, 0.28); }
+    .likes .muted { color: #2f4555; }
+    .likes .accent { color: #2a4d66; }
+
+    .rules {
+      display: grid;
+      gap: 0.15rem;
+      font-weight: 500;
+    }
+
+    .rules b { font-weight: 700; }
+
+    .timeline { list-style: none; }
+
+    .meal {
+      display: grid;
+      grid-template-columns: 4rem 1fr;
+      gap: 0.55rem;
+      padding: 0.45rem 0;
+      border-top: 1px solid;
+      border-color: inherit;
+      align-items: baseline;
+    }
+
+    .timeline .meal { border-color: rgba(42, 82, 50, 0.22); }
+    .meal:last-child { border-bottom: 1px solid rgba(42, 82, 50, 0.22); }
+
+    .meal time {
+      font-family: "Fraunces", serif;
+      font-size: 1.12rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .meal p {
+      font-size: 0.96rem;
+    }
+
+    .meal b { font-weight: 600; }
+
+    .steps {
+      list-style: none;
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .steps li {
+      padding-left: 1.25rem;
+      position: relative;
+      font-size: 0.96rem;
+    }
+
+    .steps li::before {
+      content: attr(data-n) ".";
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+    }
+
+    .feed .steps li::before { color: #2a5232; }
+    .safe .steps li::before { color: #8f321c; }
+    .likes .steps li::before { color: #2a4d66; content: "•"; }
+
+    .likes .steps li {
+      padding-left: 1rem;
+    }
+
+    @media (max-width: 420px) {
+      .meal {
+        grid-template-columns: 1fr;
+        gap: 0.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Tigo</h1>
+      <p>Poradnik opieki — kot Michała</p>
+    </header>
+
+    <section class="block feed" aria-labelledby="feed-title">
+      <h2 id="feed-title">Karmienie</h2>
+
+      <h3>W skrócie</h3>
+      <div class="rules">
+        <p><b>3×</b> mokra — ok. 60&nbsp;g</p>
+        <p><b>1×</b> sucha w dzień — 15&nbsp;g</p>
+        <p><b>1×</b> sucha w nocy — 8&nbsp;g o 4:00</p>
+      </div>
+
+      <h3>Godziny</h3>
+      <ol class="timeline">
+        <li class="meal">
+          <time>7:00</time>
+          <p class="muted"><b class="accent">Mokra ~60&nbsp;g</b></p>
+        </li>
+        <li class="meal">
+          <time>11:30</time>
+          <p class="muted"><b class="accent">Sucha 15&nbsp;g</b> (karmnik) albo mokra + sucha o innej godzinie</p>
+        </li>
+        <li class="meal">
+          <time>16:00</time>
+          <p class="muted"><b class="accent">Mokra ~60&nbsp;g</b></p>
+        </li>
+        <li class="meal">
+          <time>21:00</time>
+          <p class="muted"><b class="accent">Mokra ~60&nbsp;g</b> + nastaw karmnik na 4:00</p>
+        </li>
+        <li class="meal">
+          <time>4:00</time>
+          <p class="muted"><b class="accent">Sucha 8&nbsp;g</b> — karmnik poda sam</p>
+        </li>
+      </ol>
+
+      <h3>Mokra karma</h3>
+      <ol class="steps">
+        <li class="muted" data-n="1">Saszetkę do ciepłej wody ~2&nbsp;min</li>
+        <li class="muted" data-n="2">Odważ ~60&nbsp;g na wadze jubilerskiej</li>
+      </ol>
+      <p class="warn">Nie podawaj prosto z lodówki.</p>
+
+      <h3>Karmnik</h3>
+      <ol class="steps">
+        <li class="muted" data-n="1">W dzień: 15&nbsp;g (zwykle 11:30)</li>
+        <li class="muted" data-n="2">Wieczorem: ustaw 8&nbsp;g na 4:00</li>
+      </ol>
+    </section>
+
+    <section class="block safe" aria-labelledby="safe-title">
+      <h2 id="safe-title">Bezpieczeństwo</h2>
+      <ol class="steps">
+        <li class="muted" data-n="1">Balkon OK, ale pilnuj — siatka jest słaba, nie może na nią wchodzić</li>
+        <li class="muted" data-n="2">Drzwi od kibla zawsze otwarte (tam jest kuweta)</li>
+        <li class="muted" data-n="3">Klapę od kibla zawsze zamykaj (żeby nie pił i nie wpadł)</li>
+        <li class="muted" data-n="4">Wychodząc: zamknij wszystkie okna i balkon</li>
+      </ol>
+    </section>
+
+    <section class="block likes" aria-labelledby="likes-title">
+      <h2 id="likes-title">Co lubi kot</h2>
+      <ul class="steps">
+        <li class="muted">Wchodzić na kolana przy kiblu i się przytulać</li>
+        <li class="muted">Surykatka i miś — łapać, jak się podrzuca</li>
+        <li class="muted">Wędki, najlepiej z dzwonkami</li>
+        <li class="muted">Sprężynki — sam i jak się rzuci</li>
+        <li class="muted">Przychodzić się przytulać w nocy</li>
+      </ul>
+    </section>
+  </div>
+</body>
+</html>
