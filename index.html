@@ -362,9 +362,9 @@
       const PIPE_W = 54;
       const GAP = 140;
       const SPEED = 2.4;
-      const CAT = "🐱";
       const BX = 70;
-      const BR = 16;
+      const BR = 18;
+      const CAT_SIZE = 46;
 
       let birdY = H / 2;
       let birdV = 0;
@@ -373,6 +373,9 @@
       let best = 0;
       let state = "ready";
       let frame = 0;
+      let catSprite = null;
+      let scoreFx = 0;
+      let scorePulse = 0;
 
       try {
         best = Number(localStorage.getItem("tigo-flappy-best") || 0);
@@ -383,6 +386,27 @@
           localStorage.setItem("tigo-flappy-best", String(best));
         } catch (_) {}
       }
+
+      function knockOutBlack(img) {
+        const c = document.createElement("canvas");
+        c.width = img.naturalWidth || img.width;
+        c.height = img.naturalHeight || img.height;
+        const cctx = c.getContext("2d");
+        cctx.drawImage(img, 0, 0);
+        const data = cctx.getImageData(0, 0, c.width, c.height);
+        const d = data.data;
+        for (let i = 0; i < d.length; i += 4) {
+          if (d[i] < 30 && d[i + 1] < 30 && d[i + 2] < 30) d[i + 3] = 0;
+        }
+        cctx.putImageData(data, 0, 0);
+        return c;
+      }
+
+      const catImg = new Image();
+      catImg.onload = function () {
+        catSprite = knockOutBlack(catImg);
+      };
+      catImg.src = "tigo.png";
 
       function spawnPipe() {
         const minTop = 60;
@@ -398,6 +422,8 @@
         score = 0;
         state = "ready";
         frame = 0;
+        scoreFx = 0;
+        scorePulse = 0;
         spawnPipe();
       }
 
@@ -420,7 +446,15 @@
         }
       }
 
+      function triggerScoreFx() {
+        scoreFx = 48;
+        scorePulse = 1;
+      }
+
       function update() {
+        if (scoreFx > 0) scoreFx -= 1;
+        if (scorePulse > 0) scorePulse = Math.max(0, scorePulse - 0.04);
+
         if (state !== "play") return;
         frame += 1;
 
@@ -435,6 +469,7 @@
           if (!p.scored && p.x + PIPE_W < BX) {
             p.scored = true;
             score += 1;
+            if (score > 0 && score % 5 === 0) triggerScoreFx();
           }
         }
         pipes = pipes.filter(function (p) { return p.x > -PIPE_W - 10; });
@@ -467,12 +502,55 @@
         ctx.fillText(b, W / 2, H / 2 + 18);
       }
 
+      function drawScoreFx() {
+        if (scoreFx <= 0) return;
+        const t = scoreFx / 48;
+        const cx = W / 2;
+        const cy = 42;
+
+        // flash ring
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, 28 + (1 - t) * 55, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(196, 135, 58, " + (t * 0.9) + ")";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        // sparkles
+        for (let i = 0; i < 8; i++) {
+          const a = (i / 8) * Math.PI * 2 + (1 - t) * 1.2;
+          const r = 36 + (1 - t) * 40;
+          const x = cx + Math.cos(a) * r;
+          const y = cy + Math.sin(a) * r * 0.7;
+          ctx.fillStyle = "rgba(255, 220, 120, " + t + ")";
+          ctx.beginPath();
+          ctx.arc(x, y, 3 + t * 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // "NICE" / milestone label
+        if (t > 0.35) {
+          ctx.fillStyle = "rgba(184, 120, 46, " + Math.min(1, t * 1.4) + ")";
+          ctx.font = "700 16px Outfit, sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("★ " + score + " ★", cx, cy + 36);
+        }
+        ctx.restore();
+      }
+
       function draw() {
         const g = ctx.createLinearGradient(0, 0, 0, H);
         g.addColorStop(0, "#9ec9e6");
         g.addColorStop(1, "#d7e8c8");
         ctx.fillStyle = g;
         ctx.fillRect(0, 0, W, H);
+
+        // soft screen flash on milestone
+        if (scoreFx > 40) {
+          ctx.fillStyle = "rgba(255, 230, 160, " + ((scoreFx - 40) / 8) * 0.35 + ")";
+          ctx.fillRect(0, 0, W, H);
+        }
 
         for (let i = 0; i < pipes.length; i++) {
           const p = pipes[i];
@@ -487,17 +565,35 @@
         ctx.save();
         ctx.translate(BX, birdY);
         ctx.rotate(Math.min(0.6, Math.max(-0.5, birdV * 0.06)));
-        ctx.font = "36px serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(CAT, 0, 0);
+        if (catSprite) {
+          const s = CAT_SIZE;
+          ctx.drawImage(catSprite, -s / 2, -s / 2, s, s);
+        } else {
+          ctx.font = "36px serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("🐱", 0, 0);
+        }
         ctx.restore();
 
-        ctx.fillStyle = "#142019";
+        const scale = 1 + scorePulse * 0.85;
+        ctx.save();
+        ctx.translate(W / 2, 42);
+        ctx.scale(scale, scale);
+        if (scoreFx > 0) {
+          ctx.shadowColor = "rgba(196, 135, 58, 0.95)";
+          ctx.shadowBlur = 18 + scorePulse * 20;
+          ctx.fillStyle = "#b8782e";
+        } else {
+          ctx.fillStyle = "#142019";
+        }
         ctx.font = "700 28px Fraunces, Georgia, serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(String(score), W / 2, 42);
+        ctx.fillText(String(score), 0, 0);
+        ctx.restore();
+
+        drawScoreFx();
 
         if (state === "ready") {
           overlay("Tap / spacja", "żeby zacząć");
@@ -506,6 +602,7 @@
           if (best > 0) {
             ctx.fillStyle = "rgba(20,32,25,0.9)";
             ctx.font = "500 14px Outfit, sans-serif";
+            ctx.textAlign = "center";
             ctx.fillText("rekord: " + best, W / 2, H / 2 + 48);
           }
         }
