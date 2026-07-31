@@ -187,6 +187,15 @@
     .safe .steps li::before { color: #8f321c; }
     .likes .steps li::before { color: #2a4d66; content: "•"; }
 
+    .safe .warn {
+      margin-top: 0.65rem;
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #8f321c;
+      text-decoration: underline;
+      text-underline-offset: 0.15em;
+    }
+
     .likes .steps li {
       padding-left: 1rem;
     }
@@ -252,6 +261,12 @@
         <li class="muted" data-n="1">W dzień: 15&nbsp;g (zwykle 11:30)</li>
         <li class="muted" data-n="2">Wieczorem o 21:00: ustaw 8&nbsp;g i <b class="accent">7&nbsp;godzin</b> — obróci się o 4:00</li>
       </ol>
+
+      <h3>Gdzie jest karma</h3>
+      <ol class="steps">
+        <li class="muted" data-n="1">Sucha karma i smaczki tuńczykowe — szafka po lewej od piekarnika</li>
+        <li class="muted" data-n="2">Zapas mokrej karmy — na lodówce</li>
+      </ol>
     </section>
 
     <section class="block litter" aria-labelledby="litter-title">
@@ -272,6 +287,7 @@
         <li class="muted" data-n="3">Klapę od kibla zawsze zamykaj (żeby nie pił i nie wpadł)</li>
         <li class="muted" data-n="4">Wychodząc: zamknij wszystkie okna i balkon</li>
       </ol>
+      <p class="warn">W nocy absolutnie nie zostawiaj otwartego balkonu. Okna mogą być uchylone.</p>
     </section>
 
     <section class="block likes" aria-labelledby="likes-title">
