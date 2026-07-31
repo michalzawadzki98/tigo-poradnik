@@ -200,6 +200,43 @@
       padding-left: 1rem;
     }
 
+    /* —— Gra —— */
+    .game {
+      background: #1e2a24;
+      color: #e8efe6;
+      border-left: 4px solid #c4873a;
+    }
+
+    .game h2 {
+      color: #e8c48a;
+      border-color: rgba(232, 196, 138, 0.3);
+    }
+
+    .game .hint {
+      font-size: 0.9rem;
+      color: rgba(232, 239, 230, 0.75);
+      margin: -0.35rem 0 0.75rem;
+    }
+
+    .game-frame {
+      position: relative;
+      width: 100%;
+      border-radius: 0.25rem;
+      overflow: hidden;
+      background: #87b8d4;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .game-frame canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      vertical-align: middle;
+      cursor: pointer;
+    }
+
     @media (max-width: 420px) {
       .meal {
         grid-template-columns: 1fr;
@@ -300,6 +337,201 @@
         <li class="muted">Przychodzić się przytulać w nocy</li>
       </ul>
     </section>
+
+    <section class="block game" aria-labelledby="game-title">
+      <h2 id="game-title">Flappy Tigo</h2>
+      <p class="hint">Kliknij / tapnij / spacja — skok. Unikaj prostokątów.</p>
+      <div class="game-frame">
+        <canvas id="flappy" width="360" height="480" aria-label="Gra Flappy Tigo"></canvas>
+      </div>
+    </section>
   </div>
+
+  <script>
+    (function () {
+      const canvas = document.getElementById("flappy");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+
+      const W = canvas.width;
+      const H = canvas.height;
+      const GRAVITY = 0.42;
+      const JUMP = -7.2;
+      const PIPE_W = 54;
+      const GAP = 140;
+      const SPEED = 2.4;
+      const CAT = "🐱";
+      const BX = 70;
+      const BR = 16;
+
+      let birdY = H / 2;
+      let birdV = 0;
+      let pipes = [];
+      let score = 0;
+      let best = 0;
+      let state = "ready";
+      let frame = 0;
+
+      try {
+        best = Number(localStorage.getItem("tigo-flappy-best") || 0);
+      } catch (_) {}
+
+      function saveBest() {
+        try {
+          localStorage.setItem("tigo-flappy-best", String(best));
+        } catch (_) {}
+      }
+
+      function spawnPipe() {
+        const minTop = 60;
+        const maxTop = H - GAP - 80;
+        const top = minTop + Math.random() * (maxTop - minTop);
+        pipes.push({ x: W + 20, top: top, scored: false });
+      }
+
+      function reset() {
+        birdY = H / 2;
+        birdV = 0;
+        pipes = [];
+        score = 0;
+        state = "ready";
+        frame = 0;
+        spawnPipe();
+      }
+
+      function flap() {
+        if (state === "over") {
+          reset();
+          state = "play";
+          birdV = JUMP;
+          return;
+        }
+        if (state === "ready") state = "play";
+        if (state === "play") birdV = JUMP;
+      }
+
+      function die() {
+        state = "over";
+        if (score > best) {
+          best = score;
+          saveBest();
+        }
+      }
+
+      function update() {
+        if (state !== "play") return;
+        frame += 1;
+
+        birdV += GRAVITY;
+        birdY += birdV;
+
+        if (frame % 90 === 0) spawnPipe();
+
+        for (let i = 0; i < pipes.length; i++) {
+          const p = pipes[i];
+          p.x -= SPEED;
+          if (!p.scored && p.x + PIPE_W < BX) {
+            p.scored = true;
+            score += 1;
+          }
+        }
+        pipes = pipes.filter(function (p) { return p.x > -PIPE_W - 10; });
+
+        if (birdY - BR < 0 || birdY + BR > H) {
+          die();
+          return;
+        }
+
+        for (let i = 0; i < pipes.length; i++) {
+          const p = pipes[i];
+          const hitX = BX + BR > p.x && BX - BR < p.x + PIPE_W;
+          if (!hitX) continue;
+          if (birdY - BR < p.top || birdY + BR > p.top + GAP) {
+            die();
+            return;
+          }
+        }
+      }
+
+      function overlay(a, b) {
+        ctx.fillStyle = "rgba(20, 32, 25, 0.45)";
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = "#fff";
+        ctx.font = "700 22px Fraunces, Georgia, serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(a, W / 2, H / 2 - 12);
+        ctx.font = "500 14px Outfit, sans-serif";
+        ctx.fillText(b, W / 2, H / 2 + 18);
+      }
+
+      function draw() {
+        const g = ctx.createLinearGradient(0, 0, 0, H);
+        g.addColorStop(0, "#9ec9e6");
+        g.addColorStop(1, "#d7e8c8");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, W, H);
+
+        for (let i = 0; i < pipes.length; i++) {
+          const p = pipes[i];
+          ctx.fillStyle = "#3d6b45";
+          ctx.fillRect(p.x, 0, PIPE_W, p.top);
+          ctx.fillRect(p.x, p.top + GAP, PIPE_W, H - (p.top + GAP));
+          ctx.fillStyle = "#2a5232";
+          ctx.fillRect(p.x - 3, p.top - 16, PIPE_W + 6, 16);
+          ctx.fillRect(p.x - 3, p.top + GAP, PIPE_W + 6, 16);
+        }
+
+        ctx.save();
+        ctx.translate(BX, birdY);
+        ctx.rotate(Math.min(0.6, Math.max(-0.5, birdV * 0.06)));
+        ctx.font = "36px serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(CAT, 0, 0);
+        ctx.restore();
+
+        ctx.fillStyle = "#142019";
+        ctx.font = "700 28px Fraunces, Georgia, serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(String(score), W / 2, 42);
+
+        if (state === "ready") {
+          overlay("Tap / spacja", "żeby zacząć");
+        } else if (state === "over") {
+          overlay("Koniec — " + score, "tap, żeby od nowa");
+          if (best > 0) {
+            ctx.fillStyle = "rgba(20,32,25,0.9)";
+            ctx.font = "500 14px Outfit, sans-serif";
+            ctx.fillText("rekord: " + best, W / 2, H / 2 + 48);
+          }
+        }
+      }
+
+      function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+      }
+
+      canvas.addEventListener("pointerdown", function (e) {
+        e.preventDefault();
+        flap();
+      }, { passive: false });
+
+      window.addEventListener("keydown", function (e) {
+        if (e.code === "Space" || e.key === " ") {
+          const tag = (e.target && e.target.tagName) || "";
+          if (tag === "INPUT" || tag === "TEXTAREA") return;
+          e.preventDefault();
+          flap();
+        }
+      });
+
+      reset();
+      loop();
+    })();
+  </script>
 </body>
 </html>
